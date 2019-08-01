@@ -1,1 +1,4 @@
 node_modules
+desktop/out
+dist
+.DS_Store

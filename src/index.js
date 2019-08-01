@@ -1,5 +1,6 @@
 import Vue from "vue";
 import App from "components/App.vue";
+require("./styles/index.css");
 
 // Setup vue
 Vue.config.productionTip = false;

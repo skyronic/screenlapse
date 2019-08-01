@@ -1,18 +1,20 @@
 {
   "name": "screenlapse",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "desktop/desktop.js",
   "author": "Anirudh Sanjeev <skyronic@gmail.com>",
   "license": "MIT",
   "scripts": {
     "app": "electron .",
     "dev": "webpack --watch"
   },
-  "main": "desktop/desktop.js",
   "dependencies": {
     "css-loader": "^3.1.0",
     "electron": "^6.0.0",
     "lodash": "^4.17.15",
+    "postcss": "^7.0.17",
+    "postcss-loader": "^3.0.0",
+    "tailwindcss": "^1.0.6",
     "vue": "^2.6.10",
     "vue-loader": "^15.7.1",
     "vue-template-compiler": "^2.6.10",
