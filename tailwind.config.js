@@ -1,7 +1,14 @@
 module.exports = {
   theme: {
-    extend: {}
+
+    // No responsiveness needed
+    screens: {},
+    extend: {
+
+    }
   },
   variants: {},
-  plugins: []
+  plugins: [
+    require('@tailwindcss/custom-forms'),
+  ]
 }
