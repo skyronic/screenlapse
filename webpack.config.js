@@ -1,6 +1,6 @@
 const path = require("path");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
-const tailwind = require("tailwindcss")
+// const tailwind = require("tailwindcss")
 
 module.exports = {
   mode: "development",
@@ -34,16 +34,16 @@ module.exports = {
         use: [
             {loader: "vue-style-loader"},
             {loader: "css-loader"},
-            {
-                loader: 'postcss-loader',
-                options: {
-                    ident: 'postcss',
-                    plugins: [
-                        tailwind(path.resolve(__dirname, "tailwind.config.js")),
-                        require('autoprefixer'),
-                    ],
-                },
-            },
+            // {
+            //     loader: 'postcss-loader',
+            //     options: {
+            //         ident: 'postcss',
+            //         plugins: [
+            //             tailwind(path.resolve(__dirname, "tailwind.config.js")),
+            //             require('autoprefixer'),
+            //         ],
+            //     },
+            // },
         ]
       }
     ]
