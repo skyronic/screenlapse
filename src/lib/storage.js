@@ -1,4 +1,5 @@
 const sqlite3 = window.require('sqlite3');
+import store from 'store';
 
 let knex = window.require('knex')({
   client: 'sqlite3',
@@ -36,4 +37,12 @@ export const initializeDatabase = () => {
   return db.migrate.latest({
     migrationSource: new WebpackMigrationSource(require.context('../../migrations', false, /.js$/))
   })
+};
+
+export const loadExisting = async () => {
+  let sessionData = await db('sessions')
+    .select(['id', 'interval', 'status']);
+  console.log(sessionData)
+
+  store.dispatch('session/loadData', sessionData)
 };

@@ -1,4 +1,5 @@
 import { db }  from 'lib/storage';
+import _ from 'lodash';
 
 export const sessionModule = {
   namespaced: true,
@@ -14,6 +15,11 @@ export const sessionModule = {
       let [id] = await db('sessions').returning('id').insert(config);
 
       commit('addSession', {id, config})
+    },
+    loadData ({commit}, items) {
+      _.each(items, (item) => {
+        commit('addSession', {id: item.id, config: item});
+      })
     }
   },
   mutations: {
