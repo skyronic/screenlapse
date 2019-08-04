@@ -1,3 +1,5 @@
+import {STATUS_RUNNING, STATUS_STOPPED} from "util/constants";
+
 const sqlite3 = window.require('sqlite3');
 import store from 'store';
 
@@ -9,6 +11,11 @@ let knex = window.require('knex')({
   useNullAsDefault: true,
   migrations: {
     tableName: 'migrations'
+  },
+  log: {
+    debug (message) {
+      console.log("Storage Debug: ", message)
+    }
   }
 });
 
@@ -40,9 +47,14 @@ export const initializeDatabase = () => {
 };
 
 export const loadExisting = async () => {
+
+  await db('sessions')
+    .where('status', '=', STATUS_RUNNING)
+    .update({status: STATUS_STOPPED});
+
   let sessionData = await db('sessions')
     .select(['id', 'interval', 'status']);
-  console.log(sessionData)
+  console.log(sessionData);
 
   store.dispatch('session/loadData', sessionData)
 };

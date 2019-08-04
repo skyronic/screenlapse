@@ -1,9 +1,13 @@
 <template>
   <div>
+    <div v-if="activeSession">
+      <h4>Session Running</h4>
+      Session ID: {{ activeSession.id }}
+    </div>
     <h3 class="">Hello There!</h3>
     <a href="#" class="" @click.prevent="addSession">Add new session</a>
     <div v-for="item in sessions">
-      {{ item.id }} - {{ item.config.interval }}
+      {{ item.id }} - {{ item.config.interval }} - {{ item.config.status }}
     </div>
   </div>
 </template>
@@ -24,7 +28,8 @@
     },
     computed: {
       ...mapGetters({
-        'sessions': 'session/items'
+        'sessions': 'session/items',
+        'activeSession': 'session/runningSession'
       })
     }
 
