@@ -22,7 +22,7 @@
       }),
       addSession () {
         this.startSession({
-          interval: 42
+          interval: 3
         })
       }
     },

@@ -9,6 +9,7 @@ let screenshot = require ('screenshot-desktop')
 let fs = require('fs');
 let path = require('path');
 let { exec } = require('child_process')
+let sharp = window.require('sharp');
 
 let ticks = 0;
 
@@ -51,7 +52,7 @@ async function shouldTakeScreenshot(session) {
     return [false, "User is idle"];
   }
 
-  return [false, "All conditions met"]
+  return [true, "All conditions met"]
 }
 
 async function doTick() {
@@ -64,22 +65,26 @@ async function doTick() {
   if (shotFlag) {
     console.log("Taking screenshot ", shotReason);
 
+    let rawFilePath = "/tmp/sl/" + session.id + "/" + Date.now() + "_raw.png";
     let filePath = "/tmp/sl/" + session.id + "/" + Date.now() + ".png";
     fs.mkdirSync(path.dirname(filePath), {
       recursive: true
     });
 
-    screenshot({filename: filePath})
-      .then(() => {
-        store.dispatch("screenshot/addScreenshot", {
-          session_id: session.id,
-          path: filePath
-        });
+    await screenshot({filename: rawFilePath})
+    await sharp(rawFilePath)
+      .resize({
+        height: 1080
+      })
+      .toFile(filePath);
+    fs.unlinkSync(rawFilePath);
 
-        lastShot[session.id] = ticks;
-      }).catch((err) => {
-      warn("Failed to take screenshot", err);
+    store.dispatch("screenshot/addScreenshot", {
+      session_id: session.id,
+      path: filePath
     });
+
+    lastShot[session.id] = ticks;
 
   }
 }
