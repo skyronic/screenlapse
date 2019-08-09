@@ -5,6 +5,10 @@ import _ from 'lodash';
 import mget from "util/mget";
 import {info, debug, warn} from "util/log";
 import store from 'store';
+let screenshot = require ('screenshot-desktop')
+let fs = require('fs');
+let path = require('path');
+let { exec } = require('child_process')
 
 let ticks = 0;
 
@@ -22,33 +26,69 @@ function getLastShot(key) {
   return -100;
 }
 
-function shouldTakeScreenshot(session) {
-  let ticksSinceLastShot = ticks - getLastShot(session.id);
-
-  return [true, "Always true"]
+function getIdleTime () {
+  return new Promise(function (resolve, reject) {
+    exec("ioreg -c IOHIDSystem | awk '/HIDIdleTime/ {print $NF/1000000000; exit}'", (error, stdout, stderr) => {
+      if(error) {
+        resolve([true, 1000]);
+      }
+      resolve([false, parseInt(stdout)])
+    })
+  })
 }
 
-function doTick() {
+async function shouldTakeScreenshot(session) {
+  let ticksSinceLastShot = ticks - getLastShot(session.id);
+
+  if (ticksSinceLastShot < session.config.interval) {
+    return [false, "Insufficient time elapsed"];
+  }
+
+  let [err, idleTime] = await getIdleTime();
+
+  // TODO: make this configurable
+  if(idleTime > 5) {
+    return [false, "User is idle"];
+  }
+
+  return [false, "All conditions met"]
+}
+
+async function doTick() {
   let session = store.getters['session/runningSession'];
   if (!session) {
     return;
   }
 
-  let [shotFlag, shotReason = ""] = shouldTakeScreenshot(session)
+  let [shotFlag, shotReason = ""] = await shouldTakeScreenshot(session);
   if (shotFlag) {
-    console.log("TODO: Taking screenshot ", shotReason);
-    store.dispatch("screenshot/addScreenshot", {
-      session_id: session.id,
-      path: "foobar"
-    })
+    console.log("Taking screenshot ", shotReason);
+
+    let filePath = "/tmp/sl/" + session.id + "/" + Date.now() + ".png";
+    fs.mkdirSync(path.dirname(filePath), {
+      recursive: true
+    });
+
+    screenshot({filename: filePath})
+      .then(() => {
+        store.dispatch("screenshot/addScreenshot", {
+          session_id: session.id,
+          path: filePath
+        });
+
+        lastShot[session.id] = ticks;
+      }).catch((err) => {
+      warn("Failed to take screenshot", err);
+    });
+
   }
 }
 
 let intervalHandle = null;
 export const initScreenshotManager = () => {
-  intervalHandle = setInterval(() => {
+  intervalHandle = setInterval(async () => {
     ticks++;
-    doTick();
+    await doTick();
   }, 1000 / TICKS_IN_SEC)
 };
 
